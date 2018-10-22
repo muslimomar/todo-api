@@ -9,15 +9,13 @@ MongoClient.connect('mongodb://localhost:27017/TodoApp',{ useNewUrlParser: true 
     const db = client.db('TodoApp');
 
     db.collection('Users').findOneAndUpdate({
-      name:'Rolyan Ali'
+      name:'Rolyan'
     },{
       $set: {
         name: 'Lolo'
-      },
-      $inc: {
-        age: 1
       }
-    },{
+      }
+    ,{
       returnOriginal: false
     }).then((result) => {
         console.log(result);
