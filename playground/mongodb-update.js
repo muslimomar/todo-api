@@ -8,11 +8,21 @@ MongoClient.connect('mongodb://localhost:27017/TodoApp',{ useNewUrlParser: true 
     console.log('Connected to MongoDB server');
     const db = client.db('TodoApp');
 
-    db.collection('Users').find({name: 'Rolyan Ali'}).toArray().then( (data) => {
-      console.log('Data: ',data);
-    }, (err) => {
-      console.log('Error: ', err);
-    })
+    db.collection('Users').findOneAndUpdate({
+      name:'Rolyan Ali'
+    },{
+      $set: {
+        name: 'Lolo'
+      },
+      $inc: {
+        age: 1
+      }
+    },{
+      returnOriginal: false
+    }).then((result) => {
+        console.log(result);
+    });
+
 
     // client.close();
 
