@@ -1,3 +1,4 @@
+
 const expect = require('expect');
 const request = require('supertest');
 const {ObjectID} = require('mongodb');
@@ -122,7 +123,6 @@ describe('DELETE /todos/:id', () => {
           }
 
           Todo.findById(hexId).then((todos) => {
-            console.log("todooos: ", todos === undefined);
             expect(todos).toBeNull();
             done();
           }).catch((err) => done(err));
