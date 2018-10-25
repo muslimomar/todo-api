@@ -44,13 +44,39 @@ UserSchema.methods.generateAuthToken = function() {
   var access = 'auth';
   var token = jwt.sign({_id: user._id.toHexString(), access}, 'abc123').toString();
 
-  user.tokens.push({access,token});
+  // user.tokens.push({access,token});
+  user.tokens = user.tokens.concat([{access,token}]);
 
   return user.save().then(() => {
     return token;
   });
+};
+
+
+// statics are for models, methods are for instances. (5. video, 02:59)
+UserSchema.statics.findByToken = function(token) {
+// uppercase (U) because it's a model invidiual
+  var User = this;
+  var decoded;
+
+  try {
+    decoded = jwt.verify(token,'abc123');
+  }catch (e){
+    // return new Promise((resolve,reject) => {
+    //   reject();
+    // });
+    // to simplify this above decode:
+    return Promise.reject();
+  }
+
+  return User.findOne({
+    '_id': decoded._id,
+    'tokens.token': token,
+    'tokens.access': 'auth'
+  });
 
 };
+
 
 var User = mongoose.model('User', UserSchema);
 
