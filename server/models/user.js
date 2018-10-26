@@ -53,10 +53,20 @@ UserSchema.methods.generateAuthToken = function() {
   });
 };
 
+UserSchema.methods.removeToken = function(token) {
+  var user = this;
+
+  return user.update({
+    $pull:{
+      tokens:{token:token}
+    }
+  });
+
+};
 
 // statics are for models, methods are for instances. (5. video, 02:59)
 UserSchema.statics.findByToken = function(token) {
-// uppercase (U) because it's a model invidiual
+  // uppercase (U) because it's a model invidiual
   var User = this;
   var decoded;
 
@@ -107,7 +117,7 @@ UserSchema.pre('save', function(next) {
     bcrypt.genSalt(10, (err,salt) => {
       bcrypt.hash(user.password,salt,(err,hash) => {
         user.password = hash;
-          next();
+        next();
       });
     });
   }else{
