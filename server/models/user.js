@@ -12,7 +12,7 @@ var UserSchema = new mongoose.Schema({
     trim:true,
     unique: true,
     validate: {
-      validator: (value) => validator.isEmail,
+      validator: (value) => validator.isEmail(value),
       message: '{VALUE} is not a valid email'
     }
   },
@@ -78,6 +78,28 @@ UserSchema.statics.findByToken = function(token) {
 
 };
 
+UserSchema.statics.findByCredentials = function(email,password) {
+
+  var User = this;
+
+  return User.findOne({email}).then((user) => {
+    if(!user) {
+      return Promise.reject();
+      // this will automatically trigger catch case in server.js
+    }
+
+    return new Promise((resolve,reject) => {
+      bcrypt.compare(password,user.password, (err,res) => {
+        if(res) {
+          resolve(user);
+        }else {
+          reject();
+        }
+      });
+    });
+  });
+};
+
 UserSchema.pre('save', function(next) {
   var user = this;
 
@@ -93,6 +115,8 @@ UserSchema.pre('save', function(next) {
   }
 
 });
+
+
 
 var User = mongoose.model('User', UserSchema);
 
