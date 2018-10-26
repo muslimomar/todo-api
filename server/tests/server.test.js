@@ -147,8 +147,8 @@ describe('PATCH /todos/:id', () => {
     request(app)
     .patch(`/todos/${id}`)
     .send({  completed: true,
-            text
-        })
+      text
+    })
     .expect(200)
     .expect((res) => {
       expect(res.body.todo.text).toBe(text);
@@ -166,8 +166,8 @@ describe('PATCH /todos/:id', () => {
     request(app)
     .patch(`/todos/${id}`)
     .send({  completed: false,
-            text
-        })
+      text
+    })
     .expect(200)
     .expect((res) => {
       expect(res.body.todo.text).toBe(text);
@@ -194,15 +194,15 @@ describe('GET /users/me', () => {
     .end(done);
   });
 
-    it('should return 401 if not authenticated', (done) => {
-      request(app)
-      .get('/users/me')
-      .expect(401)
-      .expect((res) => {
-        expect(res.body).toEqual({});
-      })
-      .end(done);
-    });
+  it('should return 401 if not authenticated', (done) => {
+    request(app)
+    .get('/users/me')
+    .expect(401)
+    .expect((res) => {
+      expect(res.body).toEqual({});
+    })
+    .end(done);
+  });
 
 });
 
@@ -228,6 +228,8 @@ describe('POST /users', () => {
         expect(user).toBeTruthy();
         expect(user.password).not.toBe(password);
         done();
+      }).catch((e) => {
+        done(e);
       });
     });
   });
@@ -252,6 +254,62 @@ describe('POST /users', () => {
     .expect(400)
     .end(done);
   });
+});
 
+
+describe('POST /users/login', () => {
+
+  it('should login user and return auth token', (done) => {
+    request(app)
+    .post('/users/login')
+    .send({
+    email:  users[1].email,
+      password:users[1].password
+    })
+    .expect(200)
+    .expect((res) => {
+      expect(res.headers['x-auth']).toBeTruthy();
+    })
+    .end((error,res) => {
+      if(error) {
+        return done(error);
+      }
+
+      User.findByToken(res.headers['x-auth']).then((user) => {
+        expect(user.tokens[0]).toMatchObject({
+          access: 'auth',
+          token: res.headers['x-auth']
+        });
+        done();
+      }).catch((e) => {
+        done(e);
+      });
+    });
+  });
+
+  it('should login user and return auth token', (done) => {
+    request(app)
+    .post('/users/login')
+    .send({
+    email:  users[1].email,
+      password:users[1].password+"1"
+    })
+    .expect(400)
+    .expect((res) => {
+      expect(res.headers['x-auth']).not.toBeTruthy();
+    })
+    .end((error,res) => {
+      if(error) {
+        return done(error);
+      }
+
+      User.findByToken(res.headers['x-auth']).then((user) => {
+        expect(user.tokens).toBe(0)
+        done();
+      }).catch((e) => {
+        done(e);
+      });
+    });
+  });
 
 });
