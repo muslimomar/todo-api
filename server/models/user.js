@@ -31,7 +31,14 @@ var UserSchema = new mongoose.Schema({
       required:true
     }
   }]
-});
+}
+
+, {
+  usePushEach: true
+	}
+
+
+);
 
 UserSchema.methods.toJSON = function() {
   var user = this;
@@ -43,7 +50,7 @@ UserSchema.methods.toJSON = function() {
 UserSchema.methods.generateAuthToken = function() {
   var user = this;
   var access = 'auth';
-  var token = jwt.sign({_id: user._id.toHexString(), access}, process.env.jWT_SECRET).toString();
+  var token = jwt.sign({_id: user._id.toHexString(), access}, process.env.JWT_SECRET).toString();
 
   // user.tokens.push({access,token});
   user.tokens = user.tokens.concat([{access,token}]);
@@ -58,7 +65,7 @@ UserSchema.methods.removeToken = function(token) {
 
   return user.update({
     $pull:{
-      tokens:{token:token}
+      tokens:{token}
     }
   });
 
@@ -71,7 +78,7 @@ UserSchema.statics.findByToken = function(token) {
   var decoded;
 
   try {
-    decoded = jwt.verify(token,process.env.jWT_SECRET);
+    decoded = jwt.verify(token,process.env.JWT_SECRET);
   }catch (e){
     // return new Promise((resolve,reject) => {
     //   reject();
